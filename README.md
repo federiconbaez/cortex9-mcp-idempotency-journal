@@ -38,6 +38,17 @@ reconocerlo como duplicado.
 
 ### Mediciones (box de desarrollo, ext4 sobre virtio)
 
+**No hubo pre-registro.** Los parámetros de falla y los umbrales salen del
+criterio de aceptación, pero no se fijaron en un commit antes de medir. El
+baseline de 1340 duplicados es una medición propia de este repo, no un
+número tomado de la issue. Se reproduce con:
+
+```
+cargo build --release
+target/release/idem-harness --mode baseline --calls 10000 --seed 1 \
+  --lost-pct 10 --crash-pct 3 --kill-pct 1 --workdir target/runs/baseline
+```
+
 Reproducción de #3394 (`tests/proxy.rs`): un efecto commiteado, respuesta
 perdida, un reintento con id nuevo. Sin proxy: **2 efectos**. Con proxy:
 **1 efecto** y el reintento recibe el mismo resultado.
@@ -79,6 +90,11 @@ same key (`--server-dedups`). Key reuse with different arguments returns
 `-32002`. Calls without a key pass through. No retention policy, no
 auth-context binding, no HTTP transport; crashes are simulated with SIGKILL,
 not power loss.
+
+There was **no pre-registration**; the 1,340-duplicate baseline is our own
+measurement (`target/release/idem-harness --mode baseline --calls 10000
+--seed 1 --lost-pct 10 --crash-pct 3 --kill-pct 1 --workdir
+target/runs/baseline`).
 
 Measured on the dev box: issue #3394 reproduced (2 effects without the proxy,
 1 with it). 10,000 mutating calls with injected faults: baseline 1,340
