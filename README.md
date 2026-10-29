@@ -38,7 +38,7 @@ reconocerlo como duplicado.
 
 ### Mediciones (box de desarrollo, ext4 sobre virtio)
 
-**No hubo pre-registro.** Los parámetros de falla y los umbrales salen del
+**Medición exploratoria: no hubo pre-registro.** Los parámetros de falla y los umbrales salen del
 criterio de aceptación, pero no se fijaron en un commit antes de medir. El
 baseline de 1340 duplicados es una medición propia de este repo, no un
 número tomado de la issue. Se reproduce con:
@@ -64,8 +64,15 @@ target/release/idem-harness --mode <modo> --calls 10000 --seed 1 \
 | Modo | Efectos duplicados | Ops con duplicado | Cliente: éxito / desconocido |
 |---|---|---|---|
 | baseline (sin proxy) | **1340** | 1277 | 10000 / 0 |
-| proxy | **0** | 0 | 9592 / 408 |
-| proxy + servidor cooperativo | **0** | 0 | 10000 / 0 |
+| proxy | **0 / 10.000** (≤0,03 %, IC 95 %) | 0 | 9592 / 408 |
+| proxy + servidor cooperativo | **0 / 10.000** (≤0,03 %, IC 95 %) | 0 | 10000 / 0 |
+
+"0 duplicados" significa 0 de 10.000 calls, no una tasa cero: por la regla
+del tres, la cota superior del 95 % es ~3/10.000 (**0,03 %**) por modo.
+
+El conteo del baseline varía levemente entre corridas con la misma semilla
+porque el SIGKILL compite con el proceso: la corrida del README dio 1340 y
+una repetición posterior dio 1339.
 
 En modo proxy, 408 calls terminaron con resultado desconocido (el efecto sí
 ocurrió una vez en el ledger): es el costo honesto de "a lo sumo una vez".
@@ -97,9 +104,11 @@ measurement (`target/release/idem-harness --mode baseline --calls 10000
 target/runs/baseline`).
 
 Measured on the dev box: issue #3394 reproduced (2 effects without the proxy,
-1 with it). 10,000 mutating calls with injected faults: baseline 1,340
-duplicate effects, proxy 0 (408 outcome-unknown replies), cooperative server
-0 with 10,000 successes. p99 overhead 0.93 ms (0.93-1.66 ms over 7 runs),
+1 with it). Exploratory measurement, 10,000 mutating calls with injected faults:
+baseline 1,340 duplicate effects (1,339 on a rerun; the SIGKILL races the
+process), proxy 0 of 10,000 (408 outcome-unknown replies), cooperative server
+0 of 10,000 with 10,000 successes. 0 of 10,000 is not a zero rate: the 95 %
+upper bound by the rule of three is ~3/10,000 (0.03 %). p99 overhead 0.93 ms (0.93-1.66 ms over 7 runs),
 dominated by `fdatasync`.
 
 ## Licencia / License
