@@ -1,0 +1,16 @@
+[package]
+name = "mcp-idempotency-journal"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+description = "Proxy stdio para MCP con claves de idempotencia y diario durable de tools/call"
+repository = "https://github.com/federiconbaez/cortex9-mcp-idempotency-journal"
+
+[dependencies]
+serde_json = "1"
+sha2 = "0.10"
+crc32fast = "1"
+libc = "0.2"
+
+[dev-dependencies]
+tempfile = "3"
